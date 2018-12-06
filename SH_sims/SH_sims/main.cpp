@@ -80,22 +80,33 @@ int main() {
     /********************************/
     /********************************/
     
-    while (cv::waitKey(1) != 'q') {
+    while (1) {
         int key = waitKey(1);
-        
-        if (key == 'r')
-            //start remove
-            break;
-        else if (key == 's')
-            //start 检测
-            break;
-            
-        for (int i = 0 ; i < 5; i++){
-                cap >> Temp_frames[i];
-            }
+        //start remove
+      
         cap >> frame;
-        Mat dst(frame);
+        imshow("src", frame);
+        waitKey(1);
         
+        //press b to remove the background
+        if (key == 'b'){
+            HandDetector.RemoveBGcalibrate(frame);
+            printf("Template Saved and start remove background\n");
+        }
+        
+        else if (key == 's'){
+            HandDetector.Skincalibrate(frame);
+            printf("start the skin threshold\n");
+
+        }
+        //remove the background of the picture
+        Mat foreground = HandDetector.RemoveBackground(frame);
+        Mat SkinMask = HandDetector.getSkinMask(frame);
+//        imshow("src", frame);
+//        waitKey(1);
+        imshow("yahjahah", foreground);
+        waitKey(1);
+    
 //        cv::imshow("hahaha", );
 //        cv::imshow("binarized", binarizedImage);
     }

@@ -17,43 +17,107 @@ int thre_max = 20;
 
 Mat TemplateOfRemover;
 
-
-// save the first frame as template
-void HandDetect:: SaveTemplate(Mat input){
+HandDetect :: HandDetect(void){
+    BG_calibrate = false;
     
-    cvtColor(input, TemplateOfRemover, CV_BGR2GRAY);
-
+    hLowThreshold = 0;
+    hHighThreshold = 0;
+    sLowThreshold = 0;
+    sHighThreshold = 0;
+    vLowThreshold = 0;
+    vHighThreshold = 0;
+    SK_calibrated = false;
+    skinSampleRectngle1, skinSampleRectngle1;
 }
 
+void HandDetect :: RemoveBGcalibrate(Mat input){
+    BG_calibrate = true;
+    cvtColor(input, TemplateOfRemover, CV_BGR2GRAY);
+}
+
+void HandDetect:: Skincalibrate(Mat input){
+    
+    SK_calibrated = true;
+    int SampleWidth = input.size().width;
+    int SampleHeight = input.size().height;
+    int SampleRetangleSize = 20;
+    Scalar rectangleColor = Scalar(255,0,255);
+    
+    //choose the position of the skin samples
+    skinSampleRectngle1 = Rect(SampleWidth / 5, SampleHeight / 2,SampleRetangleSize,SampleRetangleSize);
+    skinSampleRectngle2 = Rect(SampleWidth / 5, SampleHeight / 3,SampleRetangleSize,SampleRetangleSize);
+    
+    //draw the sample area on the image
+    rectangle(input,skinSampleRectngle1,rectangleColor);
+    rectangle(input,skinSampleRectngle2,rectangleColor);
+    
+    //trans the input into HSV and take the samples
+    Mat HSVimage;
+    cvtColor(input, HSVimage, CV_BGR2HSV);
+    
+    Mat sample1 = Mat(HSVimage,skinSampleRectngle1);
+    Mat sample2 = Mat(HSVimage,skinSampleRectngle2);
+    
+    Thres_calculate(sample1, sample2);
+}
 
 Mat HandDetect :: RemoveBackground(Mat input){
     
-    Mat foreground;
+    Mat foreground = Mat :: zeros(input.rows, input.cols, CV_8UC1);;
+    if (!BG_calibrate){
+        return foreground;
+    }
+    
     cvtColor(input, input, CV_BGR2GRAY);
+    int thresBG = THRES_BG;
     
-    
-    
-    
-    imshow("lalala", input);
-    waitKey(0);
+    for(int i = 0; i < input.rows; i++){
+        for (int j = 0; j < input.cols; j++){
+            uchar inputPixel = input.at<uchar>(i,j);
+            uchar TemPixel = TemplateOfRemover.at<uchar>(i,j);
+            
+            if(inputPixel >= TemPixel - thresBG && inputPixel <= TemPixel + thresBG){
+                foreground.at<uchar>(i,j) = 0;
+            }
+            else
+                foreground.at<uchar>(i,j) = 255;
+            
+            }
+        }
     return foreground;
 }
 
 
 
-
-void HandDetect :: SkinColor(Mat input){
+void HandDetect :: Thres_calculate(Mat sample1, Mat sample2){
+    int offsetLowThreshold = 80;
+    int offsetHighThreshold = 30;
     
-    cvtColor(input, input, CV_BGR2HSV);
-    split(input, channels);
-    frameH = channels[0];
-    //这个方法好像不是很好实现，滤波的步骤有点问题，但是具体的思路应该差不多
-    medianBlur(frameH, frameH, 11);
-    Mat result = Mat::zeros(frameH.rows, frameH.cols, CV_8UC1);
-    inRange(frameH, Scalar(thre_min), Scalar(thre_max), result);
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
-    morphologyEx(result, result, MORPH_OPEN, kernel);
-    imshow("lalala", result);
-            waitKey(0);
+    Scalar HSVmeanSample1 = mean(sample1);
+    Scalar HSVmeanSample2 = mean(sample2);
+    
+    hLowThreshold = min(HSVmeanSample1[0],HSVmeanSample2[0]) - offsetLowThreshold;
+    hHighThreshold = max(HSVmeanSample1[0],HSVmeanSample2[0]) + offsetHighThreshold;
+    sLowThreshold = min(HSVmeanSample1[1],HSVmeanSample2[1]) - offsetLowThreshold;
+    sHighThreshold = max(HSVmeanSample1[1],HSVmeanSample2[1]) + offsetHighThreshold;
+    vLowThreshold = min(HSVmeanSample1[2],HSVmeanSample2[2]) - offsetLowThreshold;
+    vHighThreshold = max(HSVmeanSample1[2],HSVmeanSample2[2]) + offsetHighThreshold;
+}
 
+
+
+Mat HandDetect :: getSkinMask(Mat input){
+    Mat SkinMask = Mat :: zeros(input.rows, input.cols, CV_8UC1);;
+    if ( !SK_calibrated ){
+        return SkinMask;
+    }
+    
+    Mat hsvImage;
+    cvtColor(input, hsvImage, CV_BGR2HSV);
+    
+    inRange(hsvImage, Scalar(hLowThreshold,sLowThreshold,vLowThreshold), Scalar(hHighThreshold,sHighThreshold,vHighThreshold), SkinMask);
+    Mat morphElement = getStructuringElement(MORPH_ELLIPSE, {3,3});
+    morphologyEx(SkinMask, SkinMask, MORPH_OPEN, morphElement);
+    
+    return SkinMask;
 }

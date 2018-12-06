@@ -17,9 +17,29 @@ using namespace std;
 
 class HandDetect {
 public:
-    void SaveTemplate(Mat input);
+    HandDetect(void);
+    void RemoveBGcalibrate(Mat input);
     Mat RemoveBackground(Mat input);
-    void SkinColor(Mat input);
+    void Skincalibrate(Mat input);
+    Mat getSkinMask(Mat input);
+private:
+    bool BG_calibrate = false;
+    //need to be changed
+    int THRES_BG = 15;
+    
+    //for skin threshold
+    int hLowThreshold = 0;
+    int hHighThreshold = 0;
+    int sLowThreshold = 0;
+    int sHighThreshold = 0;
+    int vLowThreshold = 0;
+    int vHighThreshold = 0;
+    
+    Rect skinSampleRectngle1,skinSampleRectngle2;
+    
+    bool SK_calibrated = false;
+    
+    void Thres_calculate (Mat sample1, Mat sample2);
     
     
 };
