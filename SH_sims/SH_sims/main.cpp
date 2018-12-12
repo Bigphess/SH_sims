@@ -85,8 +85,8 @@ int main() {
         //start remove
       
         cap >> frame;
-        imshow("src", frame);
-        waitKey(1);
+//        imshow("src", frame);
+//        waitKey(1);
         
         //press b to remove the background
         if (key == 'b'){
@@ -101,14 +101,24 @@ int main() {
         }
         //remove the background of the picture
         Mat foreground = HandDetector.RemoveBackground(frame);
-        Mat SkinMask = HandDetector.getSkinMask(frame);
-//        imshow("src", frame);
-//        waitKey(1);
-        imshow("yahjahah", foreground);
+        //get the skin mask of th picture
+        Mat SkinMask = HandDetector.getSkinMask(foreground);
+        // remove the face from foregroundmask
+        HandDetector.RemoveFace(frame, SkinMask);
+        
+        //count the number of the finger in the picture
+        
+        Mat output = HandDetector.CountFinger(SkinMask);
+        
+        imshow("removebg", foreground);
         waitKey(1);
-    
-//        cv::imshow("hahaha", );
-//        cv::imshow("binarized", binarizedImage);
+        
+        imshow("skin", SkinMask);
+        waitKey(1);
+
+        imshow("hand", output);
+        waitKey(1);
+
     }
     
     return 0;

@@ -22,10 +22,12 @@ public:
     Mat RemoveBackground(Mat input);
     void Skincalibrate(Mat input);
     Mat getSkinMask(Mat input);
+    void RemoveFace(Mat input, Mat output);
+    Mat CountFinger(Mat input);
 private:
     bool BG_calibrate = false;
     //need to be changed
-    int THRES_BG = 15;
+    int THRES_BG = 5;
     
     //for skin threshold
     int hLowThreshold = 0;
@@ -40,6 +42,7 @@ private:
     bool SK_calibrated = false;
     
     void Thres_calculate (Mat sample1, Mat sample2);
+    double PointsDistance(Point a, Point b);
     
     
 };

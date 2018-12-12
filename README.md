@@ -20,9 +20,13 @@ A demo for OPENCV practice in 2018
 1.背景分割 （避免光效问题。前一帧和后一帧差别不大的地方直接remove掉
 * 计算两frame之间的差，不合适，因为手的运动范围比较小
 * ~背景差分法，和一个已知的模板进行对比~ 已完成
+
 ~2.肤色检测（颜色阈值？如何计算阈值）~ 已完成，取手上两块，计算颜色阈值
+
 3.人脸检测 ？Author: Pierfrancesco Soffritti https://github.com/PierfrancescoSoffritti
+
 4.手势检测
+
 5.判断
 ### 添加贴图
 * 去哪找动画

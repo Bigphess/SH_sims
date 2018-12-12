@@ -51,6 +51,8 @@
 /* Begin PBXFileReference section */
 		F3248C1F21B7C76E00C1B36A /* HandDetect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HandDetect.cpp; sourceTree = "<group>"; };
 		F3248C2021B7C76E00C1B36A /* HandDetect.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HandDetect.hpp; sourceTree = "<group>"; };
+		F3248C2221BA787F00C1B36A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F32CC25221C0E67700AA3A87 /* haarcascade_frontalface_alt.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = haarcascade_frontalface_alt.xml; sourceTree = "<group>"; };
 		F37A0F1821A5070D00759EEA /* SH_sims */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SH_sims; sourceTree = BUILT_PRODUCTS_DIR; };
 		F37A0F1B21A5070D00759EEA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		F37A0F2221A5075D00759EEA /* libpcre2-posix.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libpcre2-posix.a"; path = "../../../../../../usr/local/Cellar/pcre2/10.32/lib/libpcre2-posix.a"; sourceTree = "<group>"; };
@@ -136,6 +138,7 @@
 		F37A0F1A21A5070D00759EEA /* SH_sims */ = {
 			isa = PBXGroup;
 			children = (
+				F32CC25221C0E67700AA3A87 /* haarcascade_frontalface_alt.xml */,
 				F37A0F2921A5075E00759EEA /* libopencv_calib3d.3.4.3.dylib */,
 				F37A0F2821A5075D00759EEA /* libopencv_core.3.4.3.dylib */,
 				F37A0F3A21A5075F00759EEA /* libopencv_dnn.3.4.3.dylib */,
@@ -156,6 +159,7 @@
 				F37A0F2C21A5075E00759EEA /* libpcre2-8.0.dylib */,
 				F37A0F3221A5075E00759EEA /* libpcre2-8.a */,
 				F37A0F3921A5075F00759EEA /* libpcre2-16.0.dylib */,
+				F3248C2221BA787F00C1B36A /* Info.plist */,
 				F37A0F3321A5075F00759EEA /* libpcre2-16.a */,
 				F37A0F3821A5075F00759EEA /* libpcre2-32.0.dylib */,
 				F37A0F2521A5075D00759EEA /* libpcre2-32.a */,
@@ -352,7 +356,7 @@
 					/usr/local/include,
 					/usr/local/include/opencv,
 				);
-				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SH_sims/Info.plist";
 				"INFOPLIST_OTHER_PREPROCESSOR_FLAGS[sdk=*]" = "";
 				INFOPLIST_PREPROCESS = YES;
 				LIBRARY_SEARCH_PATHS = (
@@ -372,7 +376,7 @@
 					/usr/local/include,
 					/usr/local/include/opencv,
 				);
-				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SH_sims/Info.plist";
 				INFOPLIST_PREPROCESS = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
