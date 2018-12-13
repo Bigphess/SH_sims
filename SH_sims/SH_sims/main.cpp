@@ -68,12 +68,14 @@ int main() {
     cv::VideoCapture cap(0);
     HandDetect HandDetector;
     cv::Mat frame;
+    Mat frameOri;
     vector<Mat> Temp_frames;
     if (!cap.isOpened()) {
         return -1;
     }
     
     cv::Mat FinalResult = cv::Mat::zeros(frame.rows, frame.cols, CV_8UC1);
+    Rect ROI(0,0,640,720);
     
     cv::namedWindow("src");
     
@@ -85,6 +87,8 @@ int main() {
         //start remove
       
         cap >> frame;
+//        frame = frameOri(ROI);
+        
 //        imshow("src", frame);
 //        waitKey(1);
         
@@ -113,9 +117,9 @@ int main() {
         imshow("removebg", foreground);
         waitKey(1);
         
-        imshow("skin", SkinMask);
-        waitKey(1);
-
+//        imshow("skin", SkinMask);
+//        waitKey(1);
+//
         imshow("hand", output);
         waitKey(1);
 
