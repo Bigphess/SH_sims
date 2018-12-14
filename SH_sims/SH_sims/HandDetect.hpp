@@ -23,7 +23,10 @@ public:
     void Skincalibrate(Mat input);
     Mat getSkinMask(Mat input);
     void RemoveFace(Mat input, Mat output);
-    Mat CountFinger(Mat input);
+    vector<Point> CountFinger(Mat input, Mat output);
+    Mat addPictures(Mat result, vector<Point> fingers);
+    void mapToMat(const cv::Mat &srcAlpha, cv::Mat &dest, int x, int y);
+
 private:
     bool BG_calibrate = false;
     //need to be changed
@@ -64,6 +67,7 @@ private:
     Scalar color_purple = Scalar(255, 0, 255);
     
     void drawVectorPoints(Mat image, vector<Point> points, Scalar color, bool with_numbers);
+    
 
     
 };

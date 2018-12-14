@@ -176,11 +176,12 @@ void HandDetect:: RemoveFace(Mat input, Mat output){
 }
 
 
-Mat HandDetect:: CountFinger(Mat input){
+vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
 //    int contour_num = 0;
+    vector<Point> fliter_finger;
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
-    Mat output = Mat::zeros(input.size(), CV_8UC3);
+//    Mat output = Mat::zeros(input.size(), CV_8UC3);
     //转化成灰度图，转化成二值图
     Mat morphElement = getStructuringElement(MORPH_ELLIPSE, {5,5});
     morphologyEx(input, input, MORPH_OPEN, morphElement);
@@ -190,7 +191,7 @@ Mat HandDetect:: CountFinger(Mat input){
     findContours(input, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
     if(contours.size() <= 0){
-        return output;
+        return fliter_finger;
     }
 
     //find the biggest contour
@@ -205,7 +206,7 @@ Mat HandDetect:: CountFinger(Mat input){
     }
     //if can't find the largest contour
     if(max_contour_index < 0)
-        return output;
+        return fliter_finger;
 
 //    //draw the rect on the biggest contour
 //    Rect hahaha = boundingRect(contours[max_contour_index]);
@@ -221,7 +222,7 @@ Mat HandDetect:: CountFinger(Mat input){
         convexityDefects(contours[max_contour_index], hull_ints, defects);
     }
     else
-        return output;
+        return fliter_finger;
 
     //fin thee conveex hull
     Rect bound_hull = boundingRect(Mat(hull_points));
@@ -250,7 +251,7 @@ Mat HandDetect:: CountFinger(Mat input){
     
     
     //find the fingers
-    vector<Point> fliter_finger;
+//    vector<Point> fliter_finger;
     vector<Point> fingers;
     
     if(fliter_fars.size() > 1){
@@ -282,6 +283,8 @@ Mat HandDetect:: CountFinger(Mat input){
                 fliter_finger.push_back(fingers[fingers.size() - 1]);
         }
     }
+    
+//    finger_num = int(fliter_finger.size());
 
     
     //draw
@@ -301,7 +304,7 @@ Mat HandDetect:: CountFinger(Mat input){
     
    
         
-    return output;
+    return fliter_finger;
   
 }
 
@@ -453,3 +456,45 @@ void HandDetect::drawVectorPoints(Mat image, vector<Point> points, Scalar color,
 }
 
 
+Mat HandDetect::addPictures(Mat result, vector<Point> fingers){
+    //if more than 5 or less than 1, don't add pictures
+    if (fingers.size() > 5 || fingers.size() <= 0 )
+        return result;
+    
+    for (int i = 0; i < fingers.size(); i++){
+        Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png", -1);
+        mapToMat(alpha, result, fingers[i].x, fingers[i].y);
+        
+    }
+    return result;
+    
+}
+
+
+void HandDetect:: mapToMat(const cv::Mat &srcAlpha, cv::Mat &dest, int x, int y)
+{
+    int nc = 3;
+    int alpha = 0;
+    
+    for (int j = 0; j < srcAlpha.rows; j++)
+    {
+        for (int i = 0; i < srcAlpha.cols*3; i += 3)
+        {
+            alpha = srcAlpha.ptr<uchar>(j)[i / 3*4 + 3];
+            //alpha = 255-alpha;
+            if(alpha != 0) //4通道图像的alpha判断
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    // if (src1.ptr<uchar>(j)[i / nc*nc + k] != 0)
+                    if( (j+y < dest.rows) && (j+y>=0) &&
+                       ((i+x*3) / 3*3 + k < dest.cols*3) && ((i+x*3) / 3*3 + k >= 0) &&
+                       (i/nc*4 + k < srcAlpha.cols*4) && (i/nc*4 + k >=0) )
+                    {
+                        dest.ptr<uchar>(j+y)[(i+x*nc) / nc*nc + k] = srcAlpha.ptr<uchar>(j)[(i) / nc*4 + k];
+                    }
+                }
+            }
+        }
+    }
+}
