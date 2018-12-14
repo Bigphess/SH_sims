@@ -10,31 +10,59 @@
 #include <opencv2/opencv.hpp>
 //#include “background_segm.hpp"
 
-vector <Mat> channels;
-Mat frameH;
-int thre_min = 7;
-int thre_max = 20;
-
-Mat TemplateOfRemover;
-
 HandDetect :: HandDetect(void){
     BG_calibrate = false;
-    
+    SK_calibrated = false;
+        
     hLowThreshold = 0;
     hHighThreshold = 0;
     sLowThreshold = 0;
     sHighThreshold = 0;
     vLowThreshold = 0;
     vHighThreshold = 0;
-    SK_calibrated = false;
-    
-    
 }
+
+
 
 void HandDetect :: RemoveBGcalibrate(Mat input){
     BG_calibrate = true;
     cvtColor(input, TemplateOfRemover, CV_BGR2GRAY);
 }
+
+
+Mat HandDetect :: RemoveBackground(Mat input){
+    
+    Mat foregroundMask = Mat :: zeros(input.rows, input.cols, CV_8UC1);
+    Mat foreground = Mat :: zeros(input.rows, input.cols, CV_8UC1);;
+    if (!BG_calibrate){
+        return input;
+    }
+    
+    Mat dst;
+    dst = input.clone();
+    
+    cvtColor(input, input, CV_BGR2GRAY);
+    int thresBG = THRES_BG;
+    
+    for(int i = 0; i < input.rows; i++){
+        for (int j = 0; j < input.cols; j++){
+            uchar inputPixel = input.at<uchar>(i,j);
+            uchar TemPixel = TemplateOfRemover.at<uchar>(i,j);
+            
+            if(inputPixel >= TemPixel - thresBG && inputPixel <= TemPixel + thresBG){
+                foregroundMask.at<uchar>(i,j) = 0;
+            }
+            else
+                foregroundMask.at<uchar>(i,j) = 255;
+            
+        }
+    }
+    dst.copyTo(foreground, foregroundMask);
+    return foreground;
+
+}
+
+
 
 void HandDetect:: Skincalibrate(Mat input){
     
@@ -61,43 +89,6 @@ void HandDetect:: Skincalibrate(Mat input){
     
     Thres_calculate(sample1, sample2);
 }
-
-Mat HandDetect :: RemoveBackground(Mat input){
-    
-    Mat foregroundMask = Mat :: zeros(input.rows, input.cols, CV_8UC1);
-    Mat foreground = Mat :: zeros(input.rows, input.cols, CV_8UC1);;
-    if (!BG_calibrate){
-        return input;
-    }
-
-    Mat dst;
-    dst = input.clone();
-
-    cvtColor(input, input, CV_BGR2GRAY);
-    int thresBG = THRES_BG;
-
-    for(int i = 0; i < input.rows; i++){
-        for (int j = 0; j < input.cols; j++){
-            uchar inputPixel = input.at<uchar>(i,j);
-            uchar TemPixel = TemplateOfRemover.at<uchar>(i,j);
-
-            if(inputPixel >= TemPixel - thresBG && inputPixel <= TemPixel + thresBG){
-                foregroundMask.at<uchar>(i,j) = 0;
-            }
-            else
-                foregroundMask.at<uchar>(i,j) = 255;
-
-            }
-        }
-    dst.copyTo(foreground, foregroundMask);
-    return foreground;
-    
-//    absdiff(input, TemplateOfRemover, foregroundMask);
-//    threshold(foregroundMask, foregroundMask, 60, 255.0, CV_THRESH_BINARY);
-//    return foregroundMask;
-    
-}
-
 
 
 void HandDetect :: Thres_calculate(Mat sample1, Mat sample2){
@@ -177,16 +168,13 @@ void HandDetect:: RemoveFace(Mat input, Mat output){
 
 
 vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
-//    int contour_num = 0;
     vector<Point> fliter_finger;
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
-//    Mat output = Mat::zeros(input.size(), CV_8UC3);
     //转化成灰度图，转化成二值图
     Mat morphElement = getStructuringElement(MORPH_ELLIPSE, {5,5});
     morphologyEx(input, input, MORPH_OPEN, morphElement);
     morphologyEx(input, input, MORPH_CLOSE, morphElement);
-//    return output;
     
     findContours(input, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
@@ -211,6 +199,7 @@ vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
 //    //draw the rect on the biggest contour
 //    Rect hahaha = boundingRect(contours[max_contour_index]);
 //    rectangle(input,hahaha,Scalar(255,255,255));
+    
     //find the convex hull of the hand
     vector<Point> hull_points;
     vector<int> hull_ints;
@@ -246,12 +235,11 @@ vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
     }
     
     //filter the points with medians
-    vector<Point> fliter_starts = MedianCal(starts,bound_hull.height * BOUND_NEIGHBOR_SCALE);
+    vector<Point> fliter_starts = MedianCal(starts, bound_hull.height * BOUND_NEIGHBOR_SCALE);
     vector<Point> fliter_fars = MedianCal(fars, bound_hull.height * BOUND_NEIGHBOR_SCALE);
     
     
     //find the fingers
-//    vector<Point> fliter_finger;
     vector<Point> fingers;
     
     if(fliter_fars.size() > 1){
@@ -259,7 +247,14 @@ vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
         for( int i = 0; i < fliter_starts.size(); i++){
             vector<Point> cloests = findClosestOnX(fliter_fars, fliter_starts[i]);
             
-            if(isFinger(cloests[0], fliter_starts[i], cloests[1], LIMIT_ANGLE_INF, LIMIT_ANGLE_SUP, Center_bound_hull, bound_hull.height * BOUND_FINGER_SCALE)){
+            if(isFinger(
+                        cloests[0],
+                        fliter_starts[i],
+                        cloests[1],
+                        LIMIT_ANGLE_INF,
+                        LIMIT_ANGLE_SUP,
+                        Center_bound_hull,
+                        bound_hull.height * BOUND_FINGER_SCALE)){
                 fingers.push_back(fliter_starts[i]);
             }
             
@@ -270,11 +265,13 @@ vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
                 fingers.pop_back();
             }
             
+            //符合要求的：两个指尖的位置差多少
             for(int i = 0; i < fingers.size() - 1; i++){
                 if(findPointsDistanceOnX(fingers[i], fingers[i+1]) > bound_hull.height * BOUND_NEIGHBOR_SCALE * 1.5)
                     fliter_finger.push_back(fingers[i]);
             }
             
+            //加入最后一个
             if(fingers.size() > 2){
                 if(findPointsDistanceOnX(fingers[0], fingers[fingers.size() - 1]) > bound_hull.height * BOUND_NEIGHBOR_SCALE * 1.5)
                     fliter_finger.push_back(fingers[fingers.size() - 1]);
@@ -284,8 +281,6 @@ vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
         }
     }
     
-//    finger_num = int(fliter_finger.size());
-
     
     //draw
     drawContours(output, contours, max_contour_index, color_green, 2, 8, hierarchy);
@@ -294,22 +289,12 @@ vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
     circle(output, Center_bound_hull, 5, color_purple, 2, 8);
     drawVectorPoints(output, fliter_starts, color_blue, true);
     drawVectorPoints(output, fliter_fars, color_red, true);
-//    putText(output, to_string(fliter_fars.size()), Center_bound_hull, FONT_HERSHEY_PLAIN, 3, color_red);
-
     drawVectorPoints(output, fliter_finger, color_yellow, false);
     putText(output, to_string(fliter_finger.size()), Center_bound_hull, FONT_HERSHEY_PLAIN, 3, color_purple);
-
-
-
     
-   
-        
     return fliter_finger;
   
 }
-
-
-
 
 
 
@@ -340,10 +325,11 @@ vector<Point> HandDetect:: MedianCal(vector<Point> points, double max_neighbor){
             // the point is not in range, we save the median
             median_points.push_back(median);
             
-            // we swap the reference
+            // swap the reference
             reference = points[i];
             median = points[i];
         }
+        //不增加，取原来的一半
         else
             median = (points[i] + median) / 2;
     }
@@ -354,7 +340,7 @@ vector<Point> HandDetect:: MedianCal(vector<Point> points, double max_neighbor){
     return median_points;
 }
 
-//find tp points cloest to the far points
+//find 2 far points cloest to the start point
 vector<Point> HandDetect::findClosestOnX(vector<Point> points, Point pivot){
     vector<Point> to_return(2);
     
@@ -456,12 +442,15 @@ void HandDetect::drawVectorPoints(Mat image, vector<Point> points, Scalar color,
 }
 
 
+
+
 Mat HandDetect::addPictures(Mat result, vector<Point> fingers){
     //if more than 5 or less than 1, don't add pictures
     if (fingers.size() > 5 || fingers.size() <= 0 )
         return result;
     
     for (int i = 0; i < fingers.size(); i++){
+        //读取带有alpha通道的图片
         Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png", -1);
         mapToMat(alpha, result, fingers[i].x - alpha.rows / 2, fingers[i].y - alpha.cols / 2);
         
@@ -478,15 +467,18 @@ void HandDetect:: mapToMat(const cv::Mat &srcAlpha, cv::Mat &dest, int x, int y)
     
     for (int j = 0; j < srcAlpha.rows; j++)
     {
+        //原图上面这个位置是三通道的，所以是乘3，iterate整个原图上面的每个位置
         for (int i = 0; i < srcAlpha.cols*3; i += 3)
         {
+            //用ptr得到一行的指针，这个计算出来的是alpha通道的值
             alpha = srcAlpha.ptr<uchar>(j)[i / 3*4 + 3];
-            //alpha = 255-alpha;
-            if(alpha != 0) //4通道图像的alpha判断
+            //alpha通道的0代表透明，1代表不透明，即找到需要贴上去图片的不透明部分
+            if(alpha != 0)
             {
+                //迭代剩下三个通道
                 for (int k = 0; k < 3; k++)
                 {
-                    // if (src1.ptr<uchar>(j)[i / nc*nc + k] != 0)
+                    //判断有没有出整张图
                     if( (j+y < dest.rows) && (j+y>=0) &&
                        ((i+x*3) / 3*3 + k < dest.cols*3) && ((i+x*3) / 3*3 + k >= 0) &&
                        (i/nc*4 + k < srcAlpha.cols*4) && (i/nc*4 + k >=0) )

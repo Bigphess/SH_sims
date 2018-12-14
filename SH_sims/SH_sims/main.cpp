@@ -6,54 +6,6 @@
 //  Copyright © 2018 许若芃. All rights reserved.
 //
 
-//#include <opencv2/opencv.hpp> //Include file for every supported OpenCV function
-//int main(int argc, const char * argv[] ) {
-//    cv::Mat img = cv::imread(argv[1],-1);
-//    if( img.empty() ) return -1;
-//    cv::namedWindow( "Example1", cv::WINDOW_AUTOSIZE );
-//    cv::imshow( "Example1", img );
-//    cv::waitKey( 0 );
-//    cv::destroyWindow( "Example1" );
-//    return 0;
-//}
-
-
-//#include <iostream>
-//#include <stdlib.h>
-//#include <stdio.h>
-//
-//
-//#include <opencv2/opencv.hpp>
-//#include <opencv2/highgui/highgui.hpp>
-//#include <opencv/cvaux.hpp>
-//#include <fstream>
-//using namespace std;
-//
-//#define BYTE unsigned char
-//
-//int main(int argc, const char * argv[])
-//
-//{
-//    // insert code here...
-//#if 1
-//    //get the image from the directed path
-//    IplImage* img = cvLoadImage("/Users/bigphess/Downloads/IMG_6453.JPG", 1);
-//    //NSLog(img);
-//    //create a window to display the image
-//    cvNamedWindow("picture", 1);
-//    //show the image in the window
-//    cvShowImage("picture", img);
-//    //wait for the user to hit a key
-//    cvWaitKey(0);
-//    //delete the image and window
-//    cvReleaseImage(&img);
-//    cvDestroyWindow("picture");
-//#endif
-//    //return
-//    return 0;
-//}
-
-
 
 /*****************************/
 
@@ -68,7 +20,7 @@ int main() {
     cv::VideoCapture cap(0);
     HandDetect HandDetector;
     cv::Mat frame;
-    Mat frameOri;
+//    Mat frameOri;
     vector<Point> fingers;
 
     vector<Mat> Temp_frames;
@@ -76,8 +28,8 @@ int main() {
         return -1;
     }
     
-    cv::Mat FinalResult = cv::Mat::zeros(frame.rows, frame.cols, CV_8UC1);
-    Rect ROI(0,0,640,720);
+//    cv::Mat FinalResult = cv::Mat::zeros(frame.rows, frame.cols, CV_8UC1);
+//    Rect ROI(0,0,640,720);
     
     cv::namedWindow("src");
     
@@ -130,8 +82,8 @@ int main() {
 //        imshow("removebg", foreground);
 //        waitKey(1);
 
-//        imshow("skin", SkinMask);
-//        waitKey(1);
+        imshow("skin", SkinMask);
+        waitKey(1);
 //
         imshow("hand", output);
         waitKey(1);
@@ -141,10 +93,10 @@ int main() {
         
         
         //test for add picture
-        Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png",-1);
-        HandDetector.mapToMat(alpha, frame, 640 - (alpha.rows/2), 360 - (alpha.cols / 2));
-        imshow("f", frame);
-        waitKey(1);
+//        Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png",-1);
+//        HandDetector.mapToMat(alpha, frame, 640 - (alpha.rows/2), 360 - (alpha.cols / 2));
+//        imshow("f", frame);
+//        waitKey(1);
 
 
         

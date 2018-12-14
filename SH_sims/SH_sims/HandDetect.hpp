@@ -15,6 +15,12 @@
 using namespace cv;
 using namespace std;
 
+#define THRES_BG 5
+#define BOUND_FINGER_SCALE 0.35
+#define BOUND_NEIGHBOR_SCALE 0.05
+#define LIMIT_ANGLE_SUP 60
+#define LIMIT_ANGLE_INF 5
+
 class HandDetect {
 public:
     HandDetect(void);
@@ -28,10 +34,11 @@ public:
     void mapToMat(const cv::Mat &srcAlpha, cv::Mat &dest, int x, int y);
 
 private:
+    //flags for keyboard
     bool BG_calibrate = false;
-    //need to be changed
-    int THRES_BG = 5;
-    
+    bool SK_calibrated = false;
+    Mat TemplateOfRemover;
+
     //for skin threshold
     int hLowThreshold = 0;
     int hHighThreshold = 0;
@@ -39,25 +46,9 @@ private:
     int sHighThreshold = 0;
     int vLowThreshold = 0;
     int vHighThreshold = 0;
-    
     Rect skinSampleRectngle1,skinSampleRectngle2;
     
-    bool SK_calibrated = false;
-    
-    void Thres_calculate (Mat sample1, Mat sample2);
-    double PointsDistance(Point a, Point b);
-    
-    double BOUND_FINGER_SCALE = 0.35;
-    double BOUND_NEIGHBOR_SCALE = 0.05;
-    int LIMIT_ANGLE_SUP = 60;
-    int LIMIT_ANGLE_INF = 5;
-    
-    vector<Point> MedianCal (vector<Point> points, double max_neighbor);
-    vector<Point> findClosestOnX(vector<Point> points, Point pivot);
-    double findPointsDistanceOnX(Point a, Point b);
-    bool isFinger(Point a, Point b, Point c, double limit_angle_inf, double limit_angle_sup, Point palm_center, double min_distance_from_palm);
-    double findAngle(Point a, Point b, Point c);
-
+    //for drawing the fingers
     Scalar color_blue = Scalar(255, 0, 0);
     Scalar color_green = Scalar(0, 255, 0);
     Scalar color_red = Scalar(0, 0, 255);
@@ -66,9 +57,16 @@ private:
     Scalar color_yellow = Scalar(0, 255, 255);
     Scalar color_purple = Scalar(255, 0, 255);
     
+    //for calculate thres
+    void Thres_calculate (Mat sample1, Mat sample2);
+    //for finding fingers
+    double PointsDistance(Point a, Point b);
+    vector<Point> MedianCal (vector<Point> points, double max_neighbor);
+    vector<Point> findClosestOnX(vector<Point> points, Point pivot);
+    double findPointsDistanceOnX(Point a, Point b);
+    bool isFinger(Point a, Point b, Point c, double limit_angle_inf, double limit_angle_sup, Point palm_center, double min_distance_from_palm);
+    double findAngle(Point a, Point b, Point c);
     void drawVectorPoints(Mat image, vector<Point> points, Scalar color, bool with_numbers);
-    
-
     
 };
 
