@@ -463,7 +463,7 @@ Mat HandDetect::addPictures(Mat result, vector<Point> fingers){
     
     for (int i = 0; i < fingers.size(); i++){
         Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png", -1);
-        mapToMat(alpha, result, fingers[i].x, fingers[i].y);
+        mapToMat(alpha, result, fingers[i].x - alpha.rows / 2, fingers[i].y - alpha.cols / 2);
         
     }
     return result;

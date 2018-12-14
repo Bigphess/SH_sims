@@ -141,10 +141,10 @@ int main() {
         
         
         //test for add picture
-//        Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png",-1);
-//        HandDetector.mapToMat(alpha, frame, 640, 360);
-//        imshow("f", frame);
-//        waitKey(1);
+        Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png",-1);
+        HandDetector.mapToMat(alpha, frame, 640 - (alpha.rows/2), 360 - (alpha.cols / 2));
+        imshow("f", frame);
+        waitKey(1);
 
 
         
