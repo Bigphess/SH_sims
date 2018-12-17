@@ -20,6 +20,7 @@ HandDetect :: HandDetect(void){
     sHighThreshold = 0;
     vLowThreshold = 0;
     vHighThreshold = 0;
+    
 }
 
 
@@ -64,7 +65,7 @@ Mat HandDetect :: RemoveBackground(Mat input){
 
 
 
-void HandDetect:: Skincalibrate(Mat input){
+void HandDetect:: Skincalibrate(Mat input, Mat result){
     
     SK_calibrated = true;
     int SampleWidth = input.size().width;
@@ -77,8 +78,8 @@ void HandDetect:: Skincalibrate(Mat input){
     skinSampleRectngle2 = Rect(SampleWidth / 4, SampleHeight / 3,SampleRetangleSize,SampleRetangleSize);
     
     //draw the sample area on the image
-    rectangle(input,skinSampleRectngle1,rectangleColor);
-    rectangle(input,skinSampleRectngle2,rectangleColor);
+    rectangle(result,skinSampleRectngle1,rectangleColor);
+    rectangle(result,skinSampleRectngle2,rectangleColor);
     
     //trans the input into HSV and take the samples
     Mat HSVimage;
@@ -132,7 +133,7 @@ Mat HandDetect :: getSkinMask(Mat input){
             Scalar(hLowThreshold,sLowThreshold,vLowThreshold),
             Scalar(hHighThreshold,sHighThreshold,vHighThreshold),
             SkinMask);
-    Mat morphElement = getStructuringElement(MORPH_ELLIPSE, {20,20});
+    Mat morphElement = getStructuringElement(MORPH_ELLIPSE, {10,10});
     morphologyEx(SkinMask, SkinMask, MORPH_CLOSE, morphElement);
     
     return SkinMask;
@@ -169,6 +170,10 @@ void HandDetect:: RemoveFace(Mat input, Mat output){
 
 vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
     vector<Point> fliter_finger;
+
+    if(BG_calibrate == false || SK_calibrated == false)
+        return fliter_finger;
+    
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
     //转化成灰度图，转化成二值图
@@ -214,7 +219,7 @@ vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
         return fliter_finger;
 
     //fin thee conveex hull
-    Rect bound_hull = boundingRect(Mat(hull_points));
+    bound_hull = boundingRect(Mat(hull_points));
     rectangle(input,bound_hull,Scalar(255,255,255));
 
 //    return input;
@@ -231,7 +236,8 @@ vector<Point> HandDetect:: CountFinger(Mat input, Mat output){
     for(int i = 0; i < defects.size(); i++){
         starts.push_back(contours[max_contour_index][defects[i].val[0]]);
         //need something for far points
-       if(PointsDistance(contours[max_contour_index][defects[i].val[2]], Center_bound_hull) < bound_hull.height * BOUND_FINGER_SCALE)            fars.push_back(contours[max_contour_index][defects[i].val[2]]);
+       if(PointsDistance(contours[max_contour_index][defects[i].val[2]], Center_bound_hull) < bound_hull.height * BOUND_FINGER_SCALE)
+        fars.push_back(contours[max_contour_index][defects[i].val[2]]);
     }
     
     //filter the points with medians
@@ -444,15 +450,29 @@ void HandDetect::drawVectorPoints(Mat image, vector<Point> points, Scalar color,
 
 
 
-Mat HandDetect::addPictures(Mat result, vector<Point> fingers){
+Mat HandDetect::addPictures(Mat result, vector<Point> fingers, vector<Mat> alpha_ori ){
     //if more than 5 or less than 1, don't add pictures
     if (fingers.size() > 5 || fingers.size() <= 0 )
         return result;
     
+    vector<Mat> alpha(9);
+
+    srand((unsigned)time(NULL));
+    int temp[9];
+    for(int i = 0; i <= 8; i++)
+        temp[i]=i;
+    for(int i=8; i>=1; i--)
+        swap(temp[i], temp[rand()%i]);
+
     for (int i = 0; i < fingers.size(); i++){
-        //读取带有alpha通道的图片
-        Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png", -1);
-        mapToMat(alpha, result, fingers[i].x - alpha.rows / 2, fingers[i].y - alpha.cols / 2);
+        //for random the pics
+//        int index = temp[i];
+        int index = i;
+        resize(alpha_ori[index], alpha[index], Size(alpha_ori[index].rows  * bound_hull.height * PIC_SCALE ,alpha_ori[index].cols  * bound_hull.height * PIC_SCALE));
+//        resize(alpha_ori[index], alpha[index], Size(alpha_ori[index].rows  ,alpha_ori[index].cols  ));
+
+        mapToMat(alpha[index], result, fingers[i].x - alpha[index].rows / 2, fingers[i].y - alpha[index].cols / 2);
+//        waitKey(1000);
         
     }
     return result;
@@ -460,8 +480,10 @@ Mat HandDetect::addPictures(Mat result, vector<Point> fingers){
 }
 
 
-void HandDetect:: mapToMat(const cv::Mat &srcAlpha, cv::Mat &dest, int x, int y)
+void HandDetect:: mapToMat(Mat &srcAlpha,cv::Mat &dest, int x, int y)
 {
+    
+
     int nc = 3;
     int alpha = 0;
     

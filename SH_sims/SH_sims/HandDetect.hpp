@@ -10,6 +10,7 @@
 #define HandDetect_hpp
 
 #include <stdio.h>
+#include <time.h>
 #include <opencv2/opencv.hpp>
 
 using namespace cv;
@@ -20,24 +21,28 @@ using namespace std;
 #define BOUND_NEIGHBOR_SCALE 0.05
 #define LIMIT_ANGLE_SUP 60
 #define LIMIT_ANGLE_INF 5
+#define PIC_SCALE 0.0006
 
 class HandDetect {
 public:
     HandDetect(void);
     void RemoveBGcalibrate(Mat input);
     Mat RemoveBackground(Mat input);
-    void Skincalibrate(Mat input);
+    void Skincalibrate(Mat input,Mat result);
     Mat getSkinMask(Mat input);
     void RemoveFace(Mat input, Mat output);
     vector<Point> CountFinger(Mat input, Mat output);
-    Mat addPictures(Mat result, vector<Point> fingers);
-    void mapToMat(const cv::Mat &srcAlpha, cv::Mat &dest, int x, int y);
+    Mat addPictures(Mat result, vector<Point> fingers, vector<Mat> alpha);
+    void mapToMat(Mat &srcAlpha, cv::Mat &dest, int x, int y);
 
 private:
     //flags for keyboard
     bool BG_calibrate = false;
     bool SK_calibrated = false;
     Mat TemplateOfRemover;
+    
+    Rect bound_hull;
+    Rect skinSampleRectngle1,skinSampleRectngle2;
 
     //for skin threshold
     int hLowThreshold = 0;
@@ -46,7 +51,6 @@ private:
     int sHighThreshold = 0;
     int vLowThreshold = 0;
     int vHighThreshold = 0;
-    Rect skinSampleRectngle1,skinSampleRectngle2;
     
     //for drawing the fingers
     Scalar color_blue = Scalar(255, 0, 0);
@@ -56,6 +60,9 @@ private:
     Scalar color_white = Scalar(255, 255, 255);
     Scalar color_yellow = Scalar(0, 255, 255);
     Scalar color_purple = Scalar(255, 0, 255);
+    
+//    vector<Mat> alpha_ori[9];
+    
     
     //for calculate thres
     void Thres_calculate (Mat sample1, Mat sample2);

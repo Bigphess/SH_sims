@@ -17,10 +17,26 @@
 
 int main() {
     
-    cv::VideoCapture cap(0);
+    VideoCapture cap(0);
     HandDetect HandDetector;
-    cv::Mat frame;
-//    Mat frameOri;
+    Mat frame_ori;
+    Mat frame;
+    
+    
+    
+    vector<Mat> alpha_ori(9);
+    alpha_ori[5] = imread("/Users/bigphess/Desktop/SH_sims/pics/zelda.png",-1);
+    alpha_ori[0] = imread("/Users/bigphess/Desktop/SH_sims/pics/splatoon.png",-1);
+    alpha_ori[6] = imread("/Users/bigphess/Desktop/SH_sims/pics/purin.png",-1);
+    alpha_ori[1] = imread("/Users/bigphess/Desktop/SH_sims/pics/pikachu.png",-1);
+    alpha_ori[2] = imread("/Users/bigphess/Desktop/SH_sims/pics/mario.png",-1);
+    alpha_ori[3] = imread("/Users/bigphess/Desktop/SH_sims/pics/linkyonth.png",-1);
+    alpha_ori[7] = imread("/Users/bigphess/Desktop/SH_sims/pics/link.png",-1);
+    alpha_ori[8] = imread("/Users/bigphess/Desktop/SH_sims/pics/kingkong.png",-1);
+    alpha_ori[4] = imread("/Users/bigphess/Desktop/SH_sims/pics/kabi.png",-1);
+
+    
+    
     vector<Point> fingers;
 
     vector<Mat> Temp_frames;
@@ -28,32 +44,24 @@ int main() {
         return -1;
     }
     
-//    cv::Mat FinalResult = cv::Mat::zeros(frame.rows, frame.cols, CV_8UC1);
-//    Rect ROI(0,0,640,720);
-    
-    cv::namedWindow("src");
-    
     /********************************/
     /********************************/
     
     while (1) {
         int key = waitKey(1);
-        //start remove
       
-        cap >> frame;
-//        frame = frameOri(ROI);
-        
-//        imshow("src", frame);
-//        waitKey(1);
+        cap >> frame_ori;
+        resize(frame_ori, frame, Size(frame_ori.cols/2, frame_ori.rows/2));
+        Mat result = frame;
         
         //press b to remove the background
         if (key == 'b'){
             HandDetector.RemoveBGcalibrate(frame);
             printf("Template Saved and start remove background\n");
         }
-
+        //press to calculate the skin color
         else if (key == 's'){
-            HandDetector.Skincalibrate(frame);
+            HandDetector.Skincalibrate(frame, result);
             printf("start the skin threshold\n");
 
         }
@@ -61,42 +69,37 @@ int main() {
         Mat foreground = HandDetector.RemoveBackground(frame);
         //get the skin mask of th picture
         Mat SkinMask = HandDetector.getSkinMask(foreground);
-        // remove the face from foregroundmask
+        //remove the face from foregroundmask
         HandDetector.RemoveFace(frame, SkinMask);
-
         //count the number of the finger in the picture
         Mat output = Mat::zeros(frame.size(), CV_8UC3);
-//        int finger_num = 0;
         fingers = HandDetector.CountFinger(SkinMask, output);
-
-        Mat result = HandDetector.addPictures(frame, fingers);
-
-//        Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png", -1);
-//        if(fingers.size()>0){
-//            putText(frame, to_string(fingers.size()), Point(350,350), FONT_HERSHEY_PLAIN, 3, Scalar(255,0,255));
-//            HandDetector.mapToMat(alpha, frame, fingers[0].x , fingers[0].y);
-//        }
-        
-        
+        //add pics on the fingers
+        result = HandDetector.addPictures(frame, fingers, alpha_ori);
         
 //        imshow("removebg", foreground);
 //        waitKey(1);
-
-        imshow("skin", SkinMask);
-        waitKey(1);
 //
+//        imshow("skin", SkinMask);
+//        waitKey(1);
+////
         imshow("hand", output);
         waitKey(1);
 
         imshow("result", result);
         waitKey(1);
+
         
-        
-        //test for add picture
-//        Mat alpha = imread("/Users/bigphess/Desktop/SH_sims/test2.png",-1);
-//        HandDetector.mapToMat(alpha, frame, 640 - (alpha.rows/2), 360 - (alpha.cols / 2));
-//        imshow("f", frame);
-//        waitKey(1);
+/**************test for add picture****************/
+       
+//        vector<Point> fingers_test;
+//        fingers_test.push_back(Point(200,300));
+//        fingers_test.push_back(Point(300,400));
+//
+//        result = HandDetector.addPictures(frame, fingers_test, alpha_ori);
+////        HandDetector.mapToMat(alpha, frame, 640 - (alpha.rows/2), 360 - (alpha.cols / 2));
+//        imshow("f", result);
+//        waitKey(10);
 
 
         
