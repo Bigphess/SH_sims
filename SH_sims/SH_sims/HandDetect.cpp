@@ -9,10 +9,11 @@
 #include "HandDetect.hpp"
 #include <opencv2/opencv.hpp>
 //#include “background_segm.hpp"
+ int temp[15] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14};
 
 HandDetect :: HandDetect(void){
     BG_calibrate = false;
-    SK_calibrated = false;
+    SK_calibrated = true;
         
     hLowThreshold = 0;
     hHighThreshold = 0;
@@ -68,27 +69,27 @@ Mat HandDetect :: RemoveBackground(Mat input){
 void HandDetect:: Skincalibrate(Mat input, Mat result){
     
     SK_calibrated = true;
-    int SampleWidth = input.size().width;
-    int SampleHeight = input.size().height;
-    int SampleRetangleSize = 20;
-    Scalar rectangleColor = Scalar(255,0,255);
-    
-    //choose the position of the skin samples
-    skinSampleRectngle1 = Rect(SampleWidth / 4, SampleHeight / 2,SampleRetangleSize,SampleRetangleSize);
-    skinSampleRectngle2 = Rect(SampleWidth / 4, SampleHeight / 3,SampleRetangleSize,SampleRetangleSize);
-    
-    //draw the sample area on the image
-    rectangle(result,skinSampleRectngle1,rectangleColor);
-    rectangle(result,skinSampleRectngle2,rectangleColor);
-    
-    //trans the input into HSV and take the samples
-    Mat HSVimage;
-    cvtColor(input, HSVimage, CV_BGR2HSV);
-    
-    Mat sample1 = Mat(HSVimage,skinSampleRectngle1);
-    Mat sample2 = Mat(HSVimage,skinSampleRectngle2);
-    
-    Thres_calculate(sample1, sample2);
+//    int SampleWidth = input.size().width;
+//    int SampleHeight = input.size().height;
+//    int SampleRetangleSize = 20;
+//    Scalar rectangleColor = Scalar(255,0,255);
+//
+//    //choose the position of the skin samples
+//    skinSampleRectngle1 = Rect(SampleWidth / 4, SampleHeight / 2,SampleRetangleSize,SampleRetangleSize);
+//    skinSampleRectngle2 = Rect(SampleWidth / 4, SampleHeight / 3,SampleRetangleSize,SampleRetangleSize);
+//
+//    //draw the sample area on the image
+//    rectangle(result,skinSampleRectngle1,rectangleColor);
+//    rectangle(result,skinSampleRectngle2,rectangleColor);
+//
+//    //trans the input into HSV and take the samples
+//    Mat HSVimage;
+//    cvtColor(input, HSVimage, CV_BGR2HSV);
+//
+//    Mat sample1 = Mat(HSVimage,skinSampleRectngle1);
+//    Mat sample2 = Mat(HSVimage,skinSampleRectngle2);
+//
+//    Thres_calculate(sample1, sample2);
 }
 
 
@@ -128,10 +129,11 @@ Mat HandDetect :: getSkinMask(Mat input){
     Mat hsvImage;
     cvtColor(input, hsvImage, CV_BGR2HSV);
     
+    
     inRange(
             hsvImage,
-            Scalar(hLowThreshold,sLowThreshold,vLowThreshold),
-            Scalar(hHighThreshold,sHighThreshold,vHighThreshold),
+            Scalar(0,30,60),
+            Scalar(20,150,255),
             SkinMask);
     Mat morphElement = getStructuringElement(MORPH_ELLIPSE, {10,10});
     morphologyEx(SkinMask, SkinMask, MORPH_CLOSE, morphElement);
@@ -451,27 +453,35 @@ void HandDetect::drawVectorPoints(Mat image, vector<Point> points, Scalar color,
 
 
 Mat HandDetect::addPictures(Mat result, vector<Point> fingers, vector<Mat> alpha_ori ){
+    vector<Mat> alpha(15);
     //if more than 5 or less than 1, don't add pictures
-    if (fingers.size() > 5 || fingers.size() <= 0 )
+    if (fingers.size() > 5 || fingers.size() < 0 )
+//    if(fingers.size() != 1)
         return result;
-    
-    vector<Mat> alpha(9);
 
+    if (fingers.size() == 5){
     srand((unsigned)time(NULL));
-    int temp[9];
-    for(int i = 0; i <= 8; i++)
+    for(int i = 0; i <= 14; i++)
         temp[i]=i;
-    for(int i=8; i>=1; i--)
+    for(int i=14; i>=1; i--)
         swap(temp[i], temp[rand()%i]);
+        
+    Mat logo = imread("/Users/bigphess/Desktop/SH_sims/pics/smashlogo.png",-1);
+//    resize(logo, logo, Size(logo.rows  * bound_hull.height * PIC_SCALE ,logo.cols  * bound_hull.height * PIC_SCALE));
+    mapToMat(logo, result, fingers[2].x - logo.cols / 2, fingers[2].y + bound_hull.height/2);
+    
+    }
+    
+    
 
     for (int i = 0; i < fingers.size(); i++){
         //for random the pics
-//        int index = temp[i];
-        int index = i;
-        resize(alpha_ori[index], alpha[index], Size(alpha_ori[index].rows  * bound_hull.height * PIC_SCALE ,alpha_ori[index].cols  * bound_hull.height * PIC_SCALE));
+        int index = temp[i];
+//        int index = i;
+        resize(alpha_ori[index], alpha[index], Size(alpha_ori[index].cols  * bound_hull.height * PIC_SCALE ,alpha_ori[index].rows  * bound_hull.height * PIC_SCALE));
 //        resize(alpha_ori[index], alpha[index], Size(alpha_ori[index].rows  ,alpha_ori[index].cols  ));
 
-        mapToMat(alpha[index], result, fingers[i].x - alpha[index].rows / 2, fingers[i].y - alpha[index].cols / 2);
+        mapToMat(alpha[index], result, fingers[i].x - alpha[index].cols / 2, fingers[i].y - alpha[index].rows / 2);
 //        waitKey(1000);
         
     }

@@ -24,7 +24,7 @@ int main() {
     
     
     
-    vector<Mat> alpha_ori(9);
+    vector<Mat> alpha_ori(15);
     alpha_ori[5] = imread("/Users/bigphess/Desktop/SH_sims/pics/zelda.png",-1);
     alpha_ori[0] = imread("/Users/bigphess/Desktop/SH_sims/pics/splatoon.png",-1);
     alpha_ori[6] = imread("/Users/bigphess/Desktop/SH_sims/pics/purin.png",-1);
@@ -34,6 +34,12 @@ int main() {
     alpha_ori[7] = imread("/Users/bigphess/Desktop/SH_sims/pics/link.png",-1);
     alpha_ori[8] = imread("/Users/bigphess/Desktop/SH_sims/pics/kingkong.png",-1);
     alpha_ori[4] = imread("/Users/bigphess/Desktop/SH_sims/pics/kabi.png",-1);
+    alpha_ori[9] = imread("/Users/bigphess/Desktop/SH_sims/pics/kuba.png",-1);
+    alpha_ori[10] = imread("/Users/bigphess/Desktop/SH_sims/pics/marth.png",-1);
+    alpha_ori[11] = imread("/Users/bigphess/Desktop/SH_sims/pics/yoga.png",-1);
+    alpha_ori[12] = imread("/Users/bigphess/Desktop/SH_sims/pics/peach.png",-1);
+    alpha_ori[13] = imread("/Users/bigphess/Desktop/SH_sims/pics/ryu.png",-1);
+    alpha_ori[14] = imread("/Users/bigphess/Desktop/SH_sims/pics/pacman.png",-1);
 
     
     
@@ -50,8 +56,10 @@ int main() {
     while (1) {
         int key = waitKey(1);
       
-        cap >> frame_ori;
-        resize(frame_ori, frame, Size(frame_ori.cols/2, frame_ori.rows/2));
+//        cap >> frame_ori;
+        cap >> frame;
+
+//        resize(frame_ori, frame, Size(frame_ori.cols/2, frame_ori.rows/2));
         Mat result = frame;
         
         //press b to remove the background
@@ -67,6 +75,7 @@ int main() {
         }
         //remove the background of the picture
         Mat foreground = HandDetector.RemoveBackground(frame);
+//        Mat foreground = frame;
         //get the skin mask of th picture
         Mat SkinMask = HandDetector.getSkinMask(foreground);
         //remove the face from foregroundmask
@@ -79,10 +88,10 @@ int main() {
         
 //        imshow("removebg", foreground);
 //        waitKey(1);
-//
+
 //        imshow("skin", SkinMask);
 //        waitKey(1);
-////
+
         imshow("hand", output);
         waitKey(1);
 
@@ -101,8 +110,9 @@ int main() {
 //        imshow("f", result);
 //        waitKey(10);
 
-
         
+        
+       
         
     }
     
