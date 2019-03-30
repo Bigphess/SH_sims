@@ -3,7 +3,7 @@ A demo for OPENCV practice in 2018
 ## Functions
 * a character selector for smash BROS
 
-## Intro
+## Introduction
 * In the game SMASH BROS, sometimes it is hard for the users to choose which characters to use, that's why I design this selector.
 * At the begining of the code, you can add your favourote characters into the selection list(15 characters now)
 * Run the code, open your hand and it will start to shuffle the characters(when the game logo shows in your hand)
@@ -14,7 +14,8 @@ A demo for OPENCV practice in 2018
 
 ## Methodology
 In this part I will introduce the method I use
-### remove the background
+
+### Remove the background
 To remove the static background, I remove the background firstly.
 * Take a template when press the keyboard
 * Use current frame substract template
@@ -28,7 +29,7 @@ Use the convex hull to dectect the fingers
 * Find the convex hull
 * Use hierarchy to get far points and start points
 * Judge whether it is a finger
-(This part consider the [handy by PierfrancescoSoffritti](https://github.com/PierfrancescoSoffritti/handy)
+(This part considers the [handy by PierfrancescoSoffritti](https://github.com/PierfrancescoSoffritti/handy))
 
 
 ### Add pictures on the fingers
