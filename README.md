@@ -1,42 +1,43 @@
 # SH_sims
 A demo for OPENCV practice in 2018
-## Plan
-* bulid a superhero simulator
-* 通过手势识别，判断用户手势，让加入不同的~超级英雄~ smash bro贴图
-## 流程
-### 输出图像
-* 图像大小 720✖️1280
-* ~是否存在延迟问题？~ （只显示一张图的话是没问题的）
-### 手势识别
-#### 识别类型
-* ~thonas？ 响指 是否可以参考手势数字识别里面的7？~
-* ~spidy？ 喷射蛛丝~
-* ~ironman？ 手掌 是否可以参考手势数字里面的5~
-* 直接往手上加图片的难度太大，改成往指尖上面加图片
-#### 问题
-* ~是否需要机器学习？~
-* 哪个手势方便识别 -> 可以识别正面的手，需要打强光，手背面不是很好识别
-* ~如果加入脸的部分的识别的话，是否直接在脸上加个人物贴图？~
-#### 过程
-1.背景分割 （避免光效问题。前一帧和后一帧差别不大的地方直接remove掉
-* 计算两frame之间的差，不合适，因为手的运动范围比较小
-* ~背景差分法，和一个已知的模板进行对比~ **已完成**
+## Functions
+* a character selector for smash BROS
 
-~2.肤色检测（颜色阈值？如何计算阈值）~ **已完成，取手上两块，计算颜色阈值**
+## Intro
+* In the game SMASH BROS, sometimes it is hard for the users to choose which characters to use, that's why I design this selector.
+* At the begining of the code, you can add your favourote characters into the selection list(15 characters now)
+* Run the code, open your hand and it will start to shuffle the characters(when the game logo shows in your hand)
+![open hand](slides/open_hand.jpg)
+* Show only one finger and it will decide the character for you
+![selection](slides/select)
 
-~3.人脸检测 ？Author: Pierfrancesco Soffritti https://github.com/PierfrancescoSoffritti~  **已完成，在脸上加上了一个黑块，或者可以考虑不检测脸的部分**
 
-~4.手势检测~ **已完成，根据手的convex的far点来判断手指的根数**
+## Methodology
+In this part I will introduce the method I use
+### remove the background
+To remove the static background, I remove the background firstly.
+* Take a template when press the keyboard
+* Use current frame substract template
 
-~5.判断~ **可判断不同的手指的数量**
-### 添加贴图
-* 去哪找动画 -> 截取超级英雄（smash bro怎么样？）里面的人物Q版（五个？更多？ -> 使用png图片，定位到手指尖的位置
-* ~是否可动？~
-* ~如何给贴图准确定位 -> 定位到手指尖的位置~
-### 优化问题
-* 代码速度优化 -> 只输出一张图就没事了
-* 代码书写方法优化
-* 分割手的过程中近一步优化 -> 换个环境就好了
-* 找到相应的png动画 完成
-* 对应不同手势显示不同动画 -> 随机数实现
-* 推迟显示时间的问题
+### Skin threshold
+Use the skin threshod to isolate the hand part
+* Use HSV color threshold to get the mask
+
+### Count the number of fingers
+Use the convex hull to dectect the fingers
+* Find the convex hull
+* Use hierarchy to get far points and start points
+* Judge whether it is a finger
+(This part consider the [handy by PierfrancescoSoffritti](https://github.com/PierfrancescoSoffritti/handy)
+
+
+### Add pictures on the fingers
+* Screenshot characters in the game and convert to png
+* If fingers == 5, random the pngs, if fingers == 1, decide the character and show it on the finger
+* Show images on the fingers
+
+
+## Limitations
+* At first I want to do a simple openCV demo with hand detection, and after doing part of the job I find it is difficult to do a perfect work with poeple's face, hands and background, that's why finally it is only for hand detection
+* It can only work when the background is clean and with few noise
+* There are only 15 characters in this demo now, can add more in the future.

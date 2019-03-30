@@ -63,6 +63,7 @@ int main() {
         Mat result = frame;
         
         //press b to remove the background
+        
         if (key == 'b'){
             HandDetector.RemoveBGcalibrate(frame);
             printf("Template Saved and start remove background\n");
