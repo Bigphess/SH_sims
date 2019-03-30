@@ -9,7 +9,7 @@ A demo for OPENCV practice in 2018
 * Run the code, open your hand and it will start to shuffle the characters(when the game logo shows in your hand)
 ![open hand](slides/open_hand.jpg)
 * Show only one finger and it will decide the character for you
-![selection](slides/select)
+![selection](slides/select.png)
 
 
 ## Methodology
