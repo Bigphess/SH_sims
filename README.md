@@ -7,9 +7,9 @@ A demo for OPENCV practice in 2018
 * In the game SMASH BROS, sometimes it is hard for the users to choose which characters to use, that's why I design this selector.
 * At the begining of the code, you can add your favourote characters into the selection list(15 characters now)
 * Run the code, open your hand and it will start to shuffle the characters(when the game logo shows in your hand)
-![open hand](slides/open_hand.jpg){:height="60%" width="60%"}
+![open hand-w60](slides/open_hand.jpg)
 * Show only one finger and it will decide the character for you
-![selection](slides/select.png){:height="60%" width="60%"}
+![selection](slides/select.png)
 
 
 ## Methodology
