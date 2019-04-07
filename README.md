@@ -1,4 +1,4 @@
-# SH_sims
+# Characters Selecttor for SMASH BROS
 A demo for OPENCV practice in 2018
 ## Functions
 * a character selector for smash BROS
